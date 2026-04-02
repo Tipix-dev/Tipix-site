@@ -229,7 +229,6 @@ footer a:hover {
     /* Header */
     header {
         flex-direction: row;
-        justify-content: center;
         gap: 10px;
         padding: 10px 15px;
     }
