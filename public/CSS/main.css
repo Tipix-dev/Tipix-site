@@ -131,14 +131,14 @@ main {
     text-align: center;
 }
 
-.projects-container {
+.container {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 20px;
 }
 
-/* Карточки */
 .block {
     width: 260px;
     background: #111;
@@ -222,8 +222,8 @@ footer a:hover {
         font-size: 1.4rem;
     }
 
-    .projects-container {
-        flex-direction: column;   /* только тут колонка */
+    .container {
+        flex-direction: column;
         align-items: center;
     }
 
