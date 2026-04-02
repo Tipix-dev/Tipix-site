@@ -1,3 +1,6 @@
+/* ========================= */
+/*         FONTS             */
+/* ========================= */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap');
 
 /* ========================= */
@@ -22,7 +25,7 @@ body {
 header {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* ключевая штука */
+    justify-content: space-between;
     padding: 15px 20px;
     background: #111;
     border-bottom: 2px solid #00bfff;
@@ -31,7 +34,7 @@ header {
 #title {
     color: #00bfff;
     font-size: 1.5rem;
-    white-space: nowrap; /* чтобы не переносился */
+    white-space: nowrap;
 }
 
 #burger {
@@ -98,7 +101,7 @@ main {
     padding: 30px 20px;
 }
 
-/* Hero / Root */
+/* Hero */
 #root {
     text-align: center;
     margin-bottom: 40px;
@@ -130,17 +133,17 @@ main {
 
 .projects-container {
     display: flex;
-    gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 20px;
 }
 
-/* Cards */
+/* Карточки */
 .block {
+    width: 260px;
     background: #111;
     border: 1px solid #00bfff;
     padding: 20px;
-    width: 260px;
     border-radius: 8px;
     text-align: center;
     transition: transform 0.2s, border-color 0.2s;
@@ -195,10 +198,6 @@ footer a:hover {
     #root p {
         font-size: 1rem;
     }
-
-    .block {
-        width: 80%;
-    }
 }
 
 /* Mobile */
@@ -224,9 +223,8 @@ footer a:hover {
     }
 
     .projects-container {
-        flex-direction: column;
+        flex-direction: column;   /* только тут колонка */
         align-items: center;
-        gap: 15px;
     }
 
     .block {
