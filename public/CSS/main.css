@@ -12,7 +12,13 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
     font-family: 'JetBrains Mono', monospace;
     background-color: #1e1e1e;
     color: #00ff00;
@@ -98,6 +104,7 @@ header {
 /*        MAIN               */
 /* ========================= */
 main {
+    flex: 1;
     padding: 30px 20px;
 }
 
@@ -133,12 +140,12 @@ main {
 
 .container {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
 }
 
+/* Карточки */
 .block {
     width: 260px;
     background: #111;
