@@ -3,8 +3,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
-import tar from "tar";
-
+import * as tar from "tar";
 const app = express();
 
 const PORT = process.env.PORT || 8080;
