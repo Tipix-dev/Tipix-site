@@ -74,6 +74,7 @@ function versionExists(name, version) {
 // 🌐 VIEW ENGINE
 // =====================
 app.set("view engine", "ejs");
+app.use(express.static(join(__dirname, "public")));
 
 app.get("/", (req, res) => {
   res.render("index");
