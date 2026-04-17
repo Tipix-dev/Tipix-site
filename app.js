@@ -57,6 +57,30 @@ async function readPackage(filePath) {
   }
 }
 
+async function loadPackages() {
+  const files = fs.readdirSync(STORAGE_DIR);
+
+  const packages = [];
+
+  for (const file of files) {
+    const filePath = join(STORAGE_DIR, file);
+
+    const meta = await readPackage(filePath); 
+    // readPackage = tar → req.json
+
+    if (!meta) continue;
+
+    packages.push({
+      name: meta.name,
+      version: meta.version,
+      description: meta.description,
+      author: meta.author
+    });
+  }
+
+  return packages;
+}
+
 // =====================
 // 📦 VERSION CHECK
 // =====================
@@ -88,8 +112,12 @@ app.get("/p/OLS", (req, res) => {
   res.render("projects/OLS/main");
 });
 
-app.get("/p/OLSP", (req, res) => {
-  res.render("projects/OLSP/main");
+app.get("/p/OLSP", async (req, res) => {
+  const packages = await loadPackages();
+
+  res.render("projects/OLSP/main", {
+    packages
+  });
 });
 
 app.get("/p/OLSP/upload", (req, res) => {
