@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // =====================
-// 📦 STORAGE
+// 📦 PATHS
 // =====================
 const STORAGE_DIR = join(__dirname, "public/pkg");
 const TMP_DIR = "/tmp/olsp";
@@ -54,7 +54,7 @@ const upload = multer({
 });
 
 // =====================
-// 📦 READ PACKAGE.JSON
+// 📦 READ PACKAGE
 // =====================
 async function readPackage(filePath) {
   const tempDir = fs.mkdtempSync("/tmp/olsp-");
@@ -66,11 +66,17 @@ async function readPackage(filePath) {
     });
 
     const walk = (dir) => {
-      for (const f of fs.readdirSync(dir)) {
+      const files = fs.readdirSync(dir);
+
+      for (const f of files) {
         const full = join(dir, f);
 
         if (f === "package.json") {
-          return JSON.parse(fs.readFileSync(full, "utf-8"));
+          try {
+            return JSON.parse(fs.readFileSync(full, "utf-8"));
+          } catch (e) {
+            throw new Error("INVALID_PACKAGE_JSON");
+          }
         }
 
         if (fs.statSync(full).isDirectory()) {
@@ -78,13 +84,15 @@ async function readPackage(filePath) {
           if (res) return res;
         }
       }
+
       return null;
     };
 
     return walk(tempDir);
+
   } catch (e) {
-    console.error("READ ERROR:", e);
-    return null;
+    console.error("TAR ERROR:", e);
+    throw new Error("INVALID_ARCHIVE");
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -132,10 +140,18 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
 
     if (!pkg || !pkg.name || !pkg.version) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ ok: false, error: "INVALID_PACKAGE" });
+      return res.status(400).json({
+        ok: false,
+        error: "INVALID_PACKAGE"
+      });
     }
 
-    const { name, version, description = "", author = "" } = pkg;
+    const {
+      name,
+      version,
+      description = "",
+      author = ""
+    } = pkg;
 
     if (versionExists(name, version)) {
       fs.unlinkSync(req.file.path);
@@ -148,8 +164,11 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
     const finalName = `${name}@${version}.olsp`;
     const finalPath = join(STORAGE_DIR, finalName);
 
-    fs.renameSync(req.file.path, finalPath);
+    // 🔥 FIX: вместо rename (чтобы не падало на Render)
+    fs.copyFileSync(req.file.path, finalPath);
+    fs.unlinkSync(req.file.path);
 
+    // 📦 обновляем индекс
     const index = loadIndex();
     index.push({ name, version, description, author });
     saveIndex(index);
@@ -158,12 +177,19 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
       ok: true,
       name,
       version,
-      url: `/pkg/${name}/${version}`
+      description,
+      author,
+      url: `/pkg/${name}/${version}`,
+      latest: `/pkg/${name}/latest`
     });
 
   } catch (e) {
-    console.error("UPLOAD ERROR:", e);
-    return res.status(500).json({ ok: false, error: "SERVER_ERROR" });
+    console.error("UPLOAD CRASH:", e);
+
+    return res.status(500).json({
+      ok: false,
+      error: e.message || "SERVER_ERROR"
+    });
   }
 });
 
