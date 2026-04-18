@@ -194,10 +194,9 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
 // =====================
 // ❌ NO GET FOR UPLOAD API
 // =====================
-app.get("/api/upload", (req, res) => {
-  res.redirect("/p/OLSP/upload");
+app.all("/api/upload", (req, res) => {
+  return res.status(405).redirect("/api/upload");
 });
-
 // =====================
 // 🚀 START SERVER
 // =====================
