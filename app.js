@@ -82,6 +82,20 @@ async function readPackageFromArchive(filePath) {
   }
 }
 
+function loadIndex() {
+  try {
+    if (!fs.existsSync(INDEX_FILE)) return [];
+
+    const raw = fs.readFileSync(INDEX_FILE, "utf-8").trim();
+    if (!raw) return [];
+
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("INDEX PARSE ERROR:", err);
+    return [];
+  }
+}
+
 // =====================
 // 🌐 VIEW ENGINE
 // =====================
@@ -104,7 +118,8 @@ app.get("/p/OLS", (req, res) => {
 });
 
 app.get("/p/OLSP", (req, res) => {
-  res.render("projects/OLSP/main");
+  let packages = loadIndex()
+  res.render("projects/OLSP/main", { packages });
 });
 
 app.get("/p/OLSP/upload", (req, res) => {
