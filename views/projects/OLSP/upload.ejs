@@ -13,10 +13,39 @@
         <div class="container">
             <form action="/api/upload" method="post" enctype="multipart/form-data" class="block">
                 <input type="file" name="package" accept=".olsp" required>
+                <div id="msg"></div>
                 <button type="submit">Submit</button>
             </form>
         </div>
-        
+        <script>
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.ok) {
+                const msg = document.getElementById("msg");
+                msg.textContent = "Upload successful! Redirecting...";
+                msg.style.color = "green";
+
+                setTimeout(() => {
+                window.location.href = "/p/OLSP";
+                }, 1000);
+            } else {
+                alert(data.error);
+                console.error(data)
+            }
+        });
+        </script>
     </main>
     <%- include('../../blocks/footer') %>
 </body>
