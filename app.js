@@ -15,12 +15,12 @@ const PORT = process.env.PORT || 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 📦 FINAL STORAGE (репозиторий)
 const STORAGE_DIR = path.join(__dirname, "public/pkg");
+
+// 🧪 TEMP WORKSPACE (распаковка)
 const TMP_DIR = path.join(__dirname, "tmp");
 
-// =====================
-// INIT DIRS
-// =====================
 [STORAGE_DIR, TMP_DIR].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -28,7 +28,16 @@ const TMP_DIR = path.join(__dirname, "tmp");
 });
 
 // =====================
-// MULTER
+// EJS
+// =====================
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
+
+// =====================
+// MULTER → only TMP
 // =====================
 const upload = multer({
   storage: multer.diskStorage({
@@ -76,9 +85,6 @@ async function extractPackageMeta(filePath) {
     };
 
     return findPkg(tempDir);
-  } catch (err) {
-    console.error("EXTRACT ERROR:", err);
-    return null;
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -100,45 +106,39 @@ function findExistingPackage(name) {
 
   return {
     file,
-    version: match ? match[1] : null,
+    version: match?.[1],
   };
 }
-async function listPackages() {
-  const files = fs.readdirSync(STORAGE_DIR)
-    .filter(f => f.endsWith(".olsp"));
 
-  const packages = [];
-
-  for (const file of files) {
-    const filePath = path.join(STORAGE_DIR, file);
-
-    const meta = await extractPackageMeta(filePath);
-
-    if (!meta) continue;
-
-    packages.push({
-      name: meta.name,
-      version: meta.version,
-      description: meta.description || "not description",
-      author: meta.author || "not author"
-    });
-  }
-
-  return packages;
-}
+// =====================
+// SHA256
+// =====================
 function sha256(filePath) {
   const data = fs.readFileSync(filePath);
   return crypto.createHash("sha256").update(data).digest("hex");
 }
 
 // =====================
-// STATIC
+// LIST PACKAGES
 // =====================
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
-app.set("view engine", "ejs");
+function listPackages() {
+  const files = fs.readdirSync(STORAGE_DIR);
 
+  return files
+    .filter((f) => f.endsWith(".olsp"))
+    .map((file) => {
+      const match = file.match(/(.+)@(.+)\.olsp/);
 
+      return {
+        name: match?.[1],
+        version: match?.[2],
+      };
+    });
+}
+
+// =====================
+// ROUTES
+// =====================
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -148,30 +148,31 @@ app.get("/projects", (req, res) => {
 });
 
 app.get("/p/OLS", (req, res) => {
-  res.render("projects/OLS/main");
+  const packages = listPackages();
+  res.render("projects/OLS/main", { packages });
 });
 
-app.get("/p/OLSP", async (req, res) => {
-  const packages = await listPackages();
+
+app.get("/p/OLSP", (req, res) => {
+  const packages = listPackages();
   res.render("projects/OLSP/main", { packages });
 });
-
 
 app.get("/p/OLSP/upload", (req, res) => {
   res.render("projects/OLSP/upload");
 });
-// =====================
-// 📦 UPLOAD
-// =====================
+
 app.post("/api/upload", upload.single("package"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ ok: false, error: "NO_FILE" });
   }
 
-  const meta = await extractPackageMeta(req.file.path);
+  const tmpFile = req.file.path;
+
+  const meta = await extractPackageMeta(tmpFile);
 
   if (!meta || !meta.name || !meta.version) {
-    fs.unlinkSync(req.file.path);
+    fs.unlinkSync(tmpFile);
     return res.status(400).json({ ok: false, error: "INVALID_PACKAGE" });
   }
 
@@ -180,7 +181,7 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
   const existing = findExistingPackage(name);
 
   if (existing && existing.version === version) {
-    fs.unlinkSync(req.file.path);
+    fs.unlinkSync(tmpFile);
     return res.status(400).json({
       ok: false,
       error: "VERSION_ALREADY_EXISTS",
@@ -195,10 +196,13 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
       fs.unlinkSync(path.join(STORAGE_DIR, existing.file));
     }
 
-    fs.copyFileSync(req.file.path, finalPath);
-    fs.unlinkSync(req.file.path);
+    fs.copyFileSync(tmpFile, finalPath);
+
+    
+    fs.unlinkSync(tmpFile);
+
   } catch (err) {
-    console.error("FS ERROR:", err);
+    console.error(err);
     return res.status(500).json({ ok: false, error: "FS_ERROR" });
   }
 
@@ -206,9 +210,8 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
     ok: true,
     name,
     version,
-    description: description || "",
-    author: author || "",
-    file: finalName,
+    description: description || "not description",
+    author: author || "not author",
     checksum: sha256(finalPath),
     download: `/api/download/${name}`,
   });
@@ -217,28 +220,17 @@ app.post("/api/upload", upload.single("package"), async (req, res) => {
 app.get("/api/download/:name", (req, res) => {
   const { name } = req.params;
 
-  const files = fs.readdirSync(STORAGE_DIR).filter(f =>
-    f.startsWith(name + "@") && f.endsWith(".olsp")
-  );
+  const files = fs.readdirSync(STORAGE_DIR)
+    .filter((f) => f.startsWith(name + "@"));
 
   if (files.length === 0) {
-    return res.status(404).end();
+    return res.status(404).send("Package not found");
   }
 
-  const filePath = path.join(STORAGE_DIR, files[0]);
-
-  res.download(filePath);
+  res.download(path.join(STORAGE_DIR, files[0]));
 });
 
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ ok: false, error: err.message });
-});
-
-// =====================
-// START
-// =====================
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`OLSP running on ${PORT}`);
 });
