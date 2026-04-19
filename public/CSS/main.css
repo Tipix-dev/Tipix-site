@@ -185,6 +185,50 @@ a.btn:active {
     transform: scale(0.97);
 }
 
+button {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: transparent;
+    color: #00ff00;
+    border: 1px solid #00bfff;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background-color: #00ff00;
+    color: #111;
+    border-color: #00ff00;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+input[type=file] {
+    display: inline-block;
+    background-color: transparent;
+    color: #00ff00;
+    border: 1px solid #00bfff;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+input[type=file]:hover {
+    background-color: #00ff00;
+    color: #111;
+    border-color: #00ff00;
+}
+
+a {
+    color: #00bfff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
 /* ========================= */
 /*        PROJECTS           */
 /* ========================= */
@@ -192,7 +236,7 @@ a.btn:active {
     text-align: center;
 }
 
-.container {
+div.container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -225,14 +269,7 @@ footer {
     font-size: 0.9rem;
 }
 
-footer a {
-    color: #00bfff;
-    text-decoration: none;
-}
 
-footer a:hover {
-    text-decoration: underline;
-}
 
 /* ========================= */
 /*       RESPONSIVE          */
@@ -299,6 +336,11 @@ footer a:hover {
     }
 
     a.btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    button {
         width: 100%;
         text-align: center;
     }
