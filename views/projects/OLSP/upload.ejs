@@ -12,7 +12,7 @@
     <main>
         <div class="container">
             <form action="/api/upload" method="post" enctype="multipart/form-data" class="block">
-                <input type="file" name="package" accept=".olsp" required>
+                <label class="file"><input type="file" name="package" accept=".olsp" required></label>
                 <div id="msg"></div>
                 <button type="submit">Submit</button>
             </form>

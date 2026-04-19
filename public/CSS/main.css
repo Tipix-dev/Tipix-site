@@ -205,28 +205,31 @@ button:active {
     transform: scale(0.97);
 }
 
-input[type=file] {
+input[type="file"] {
+    display: none;
+}
+
+label.file {
     display: inline-block;
-    background-color: transparent;
+    padding: 10px 16px;
+    background: transparent;
     color: #00ff00;
     border: 1px solid #00bfff;
     border-radius: 6px;
+    cursor: pointer;
     transition: 0.2s;
 }
-input[type=file]:hover {
+
+label.file:hover {
     background-color: #00ff00;
     color: #111;
     border-color: #00ff00;
 }
 
-a {
-    color: #00bfff;
-    text-decoration: none;
+label.file:active {
+    transform: scale(0.97);
 }
 
-a:hover {
-    text-decoration: underline;
-}
 
 
 /* ========================= */

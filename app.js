@@ -15,10 +15,9 @@ const PORT = process.env.PORT || 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 📦 FINAL STORAGE (репозиторий)
+
 const STORAGE_DIR = path.join(__dirname, "public/pkg");
 
-// 🧪 TEMP WORKSPACE (распаковка)
 const TMP_DIR = path.join(__dirname, "tmp");
 
 [STORAGE_DIR, TMP_DIR].forEach((dir) => {
@@ -31,13 +30,12 @@ const TMP_DIR = path.join(__dirname, "tmp");
 // EJS
 // =====================
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 // =====================
-// MULTER → only TMP
+// MULTER
 // =====================
 const upload = multer({
   storage: multer.diskStorage({
