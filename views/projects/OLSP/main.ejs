@@ -26,8 +26,7 @@
             <p>Version: <%= pkg.version %></p>
             <p>Author: <%= pkg.author %></p>
 
-            <a href="/pkg/<%= pkg.name %>@<%= pkg.version %>" class="btn">Latest</a>
-            </div>
+            <a href="/api/download/<%= pkg.name %>" class="btn">Download</a>            </div>
         <% }) %>
         </div>
     </main>
