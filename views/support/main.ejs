@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Support | Tipix</title>
+    <link rel="stylesheet" href="/CSS/main.css">
+</head>
+<body>
+
+    <%- include('../blocks/header') %>
+
+    <section class="support">
+
+        <h1>Paid Support</h1>
+
+        <p>
+            One support request costs <b>$10</b>.
+            You describe your issue, pay, and we will respond as soon as possible.
+        </p>
+
+        <form action="/support/create" method="POST" class="support-form">
+
+            <p>Title</p>
+            <input
+                type="text"
+                name="title"
+                placeholder="Short description of the issue"
+                required
+            >
+
+            <p>Description (Markdown supported)</p>
+            <textarea
+                name="description"
+                placeholder="Describe your issue in detail..."
+                rows="8"
+                required
+            ></textarea>
+
+            <button type="submit">
+                💳 Continue to payment ($10)
+            </button>
+
+        </form>
+
+        <div class="support-info">
+            <h3>What you get</h3>
+            <ul>
+                <li>Response within reasonable time (24–72h)</li>
+                <li>Help with CLI tools / setup / bugs</li>
+                <li>Direct developer support</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <%- include('../blocks/footer') %>
+
+</body>
+</html>

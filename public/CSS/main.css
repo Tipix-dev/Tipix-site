@@ -260,6 +260,26 @@ div.container {
     border-color: #00ff00;
 }
 
+textarea {
+    resize: none;
+    display: block;
+
+    width: 100%;
+    min-height: 200px;
+
+    padding: 12px;
+
+    color: #00ff00;
+    background: transparent;
+
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    border: 3px solid #00bfff;
+    border-radius: 8px;
+    outline: none;
+}
 /* ========================= */
 /*         FOOTER            */
 /* ========================= */
