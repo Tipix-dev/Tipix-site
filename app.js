@@ -224,8 +224,8 @@ app.post("/support/create", async (req, res) => {
         },
       ],
       metadata: { ticketId },
-      success_url: `${process.env.BASE_URL}/support/success`,
-      cancel_url: `${process.env.BASE_URL}/support`,
+      success_url: `${process.env.BASE_URL}support/success`,
+      cancel_url: `${process.env.BASE_URL}support`,
     });
 
     return res.redirect(session.url);
