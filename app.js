@@ -10,6 +10,7 @@ import nodemailer from "nodemailer";
 import MarkdownIt from "markdown-it";
 
 const app = express();
+
 const PORT = process.env.PORT || 8080;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const md = new MarkdownIt();
@@ -39,6 +40,7 @@ app.set("view engine", "ejs");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // =====================
 // MULTER
