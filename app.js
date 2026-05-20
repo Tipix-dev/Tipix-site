@@ -144,38 +144,40 @@ function listPackages() {
 // =====================
 // ROUTES
 // =====================
-app.post("/stripe/webhook", express.raw({ type: "application/json" }));
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const sig = req.headers["stripe-signature"];
 
-app.post("/stripe/webhook", (req, res) => {
-  const sig = req.headers["stripe-signature"];
+    let event;
 
-  let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET,
+      );
+    } catch (err) {
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET,
-    );
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
+      const ticketId = session.metadata.ticketId;
+      const ticket = tickets.get(ticketId);
 
-    const ticketId = session.metadata.ticketId;
-    const ticket = tickets.get(ticketId);
+      if (!ticket) return res.sendStatus(200);
 
-    if (!ticket) return res.sendStatus(200);
+      ticket.status = "paid";
 
-    ticket.status = "paid";
+      sendEmail(ticket);
+    }
 
-    sendEmail(ticket);
-  }
-
-  res.sendStatus(200);
-});
+    res.sendStatus(200);
+  },
+);
 
 const transporter = nodemailer.createTransport({
   host: "smtp.zoho.eu",
@@ -190,23 +192,34 @@ const transporter = nodemailer.createTransport({
 async function sendEmail(ticket) {
   await transporter.sendMail({
     from: process.env.SMTP_USER,
-    to: ,
+
+    to: ticket.email, // 👈 ВОТ ТУТ
+
     subject: `💰 Paid support: ${ticket.title}`,
+
     html: `
-            <h2>${ticket.title}</h2>
-            <div>${md.render(ticket.description)}</div>
-            <p><b>ID:</b> ${ticket.id}</p>
-        `,
+      <h2>${ticket.title}</h2>
+      <p><b>User email:</b> ${ticket.email}</p>
+      <div>${md.render(ticket.description)}</div>
+      <p><b>ID:</b> ${ticket.id}</p>
+    `,
   });
 }
 
 app.post("/support/create", async (req, res) => {
   try {
-    const { title, description } = req.body;
-
-    console.log("FORM DATA:", req.body);
+    const { title, description, email } = req.body;
 
     const ticketId = "t_" + Date.now();
+
+    tickets.set(ticketId, {
+      id: ticketId,
+      title,
+      description,
+      email,
+      status: "pending_payment",
+    });
+    console.log("FORM DATA:", req.body);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -252,8 +265,7 @@ app.get("/projects", (req, res) => {
 });
 
 app.get("/p/OLS", (req, res) => {
-  const packages = listPackages();
-  res.render("projects/OLS/main", { packages });
+  res.render("projects/OLS/main");
 });
 
 app.get("/p/OLSP", (req, res) => {
