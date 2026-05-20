@@ -199,41 +199,38 @@ async function sendEmail(ticket) {
 }
 
 app.post("/support/create", async (req, res) => {
-  const { title, description } = req.body;
+  try {
+    const { title, description } = req.body;
 
-  const ticketId = "t_" + Date.now();
+    console.log("FORM DATA:", req.body);
 
-  tickets.set(ticketId, {
-    id: ticketId,
-    title,
-    description,
-    status: "pending_payment",
-  });
+    const ticketId = "t_" + Date.now();
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: "Tipix Support Ticket",
-            description: "One paid support request",
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Tipix Support: " + title,
+            },
+            unit_amount: 1000,
           },
-          unit_amount: 1000,
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    metadata: {
-      ticketId,
-    },
-    success_url: `${process.env.BASE_URL}/support/success`,
-    cancel_url: `${process.env.BASE_URL}/support`,
-  });
+      ],
+      metadata: { ticketId },
+      success_url: `${process.env.BASE_URL}/support/success`,
+      cancel_url: `${process.env.BASE_URL}/support`,
+    });
 
-  res.redirect(session.url);
+    return res.redirect(session.url);
+  } catch (err) {
+    console.error("❌ SUPPORT CREATE ERROR:", err);
+    return res.status(500).send("Internal Server Error");
+  }
 });
 
 app.get("/support/success", (req, res) => {
