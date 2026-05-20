@@ -11,7 +11,7 @@ import MarkdownIt from "markdown-it";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const md = new MarkdownIt();
 
 const tickets = new Map();
