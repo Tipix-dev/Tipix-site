@@ -262,6 +262,7 @@ app.post("/support/create", async (req, res) => {
 
 app.get("/support/success", (req, res) => {
   res.send("Payment has been processed. We've received your request 🚀");
+  console.log("ALL TICKETS:", [...tickets.keys()]);
 });
 
 app.get("/support", (req, res) => {
