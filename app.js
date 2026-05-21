@@ -283,6 +283,8 @@ app.get("/support/success", async (req, res) => {
     }
 
     res.send("Payment OK 🚀");
+    console.log("ALL TICKETS:", [...tickets.keys()]);
+    console.log("LOOKING FOR:", req.query.ticket);
   } catch (err) {
     console.error("❌ SUCCESS ROUTE ERROR:");
     console.error(err);
