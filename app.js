@@ -260,9 +260,20 @@ app.post("/support/create", async (req, res) => {
   }
 });
 
-app.get("/support/success", (req, res) => {
-  res.send("Payment has been processed. We've received your request 🚀");
-  console.log("ALL TICKETS:", [...tickets.keys()]);
+app.get("/support/success", async (req, res) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+
+  if (session.payment_status !== "paid") {
+    return res.status(400).send("Not paid");
+  }
+
+  const ticket = tickets.get(req.query.ticket);
+
+  if (ticket) {
+    await sendEmail(ticket);
+  }
+
+  res.send("Payment successful");
 });
 
 app.get("/support", (req, res) => {
