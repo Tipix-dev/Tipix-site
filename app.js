@@ -249,7 +249,7 @@ app.post("/support/create", async (req, res) => {
         metadata: { ticketId }, // 🔥 ВОТ ЭТО ГЛАВНОЕ
       },
 
-      success_url: `${process.env.BASE_URL}support/success`,
+      success_url: `${process.env.BASE_URL}support/success?session_id={CHECKOUT_SESSION_ID}&ticket=${ticketId}`,
       cancel_url: `${process.env.BASE_URL}support`,
     });
 
