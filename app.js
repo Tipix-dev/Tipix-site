@@ -279,7 +279,7 @@ app.get("/support/success", async (req, res) => {
     console.log("TICKET:", ticket);
 
     if (ticket) {
-      await sendEmail(ticket);
+      sendEmail(ticket);
     }
 
     res.send("Payment OK 🚀");
