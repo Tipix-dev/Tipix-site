@@ -178,10 +178,10 @@ app.post(
       await sendEmail(ticket);
 
       console.log("AFTER EMAIL");
+      console.log("🔥 WEBHOOK HIT");
+      console.log("EVENT:", event.type);
     }
 
-    console.log("🔥 WEBHOOK HIT");
-    console.log("EVENT:", event.type);
     res.sendStatus(200);
   },
 );
