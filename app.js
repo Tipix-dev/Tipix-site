@@ -164,7 +164,7 @@ app.post(
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      
+
       const ticketId =
         session.metadata?.ticketId ||
         session.payment_intent?.metadata?.ticketId;
@@ -230,7 +230,7 @@ app.post("/support/create", async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-    
+
       line_items: [
         {
           price_data: {
@@ -243,17 +243,17 @@ app.post("/support/create", async (req, res) => {
           quantity: 1,
         },
       ],
-    
+
       metadata: { ticketId },
-    
+
       payment_intent_data: {
         metadata: { ticketId }, // 🔥 ВОТ ЭТО ГЛАВНОЕ
       },
-    
-      success_url: `${process.env.BASE_URL}/support/success`,
-      cancel_url: `${process.env.BASE_URL}/support`,
+
+      success_url: `${process.env.BASE_URL}support/success`,
+      cancel_url: `${process.env.BASE_URL}support`,
     });
-    
+
     return res.redirect(session.url);
   } catch (err) {
     console.error("❌ SUPPORT CREATE ERROR:", err);
