@@ -198,9 +198,9 @@ const transporter = nodemailer.createTransport({
 
 async function sendEmail(ticket) {
   await transporter.sendMail({
-    from: process.env.SMTP_USER,
+    from: ticket.email,
 
-    to: ticket.email,
+    to: process.env.SMTP_USER,
     subject: `💰 Paid support: ${ticket.title}`,
 
     html: `
