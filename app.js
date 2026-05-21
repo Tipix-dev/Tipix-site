@@ -147,7 +147,7 @@ function listPackages() {
 app.post(
   "/stripe/webhook",
   express.raw({ type: "application/json" }),
-  (req, res) => {
+  async (req, res) => {
     const sig = req.headers["stripe-signature"];
 
     let event;
@@ -171,10 +171,15 @@ app.post(
       if (!ticket) return res.sendStatus(200);
 
       ticket.status = "paid";
+      console.log("TICKET:", ticket);
 
-      sendEmail(ticket);
+      await sendEmail(ticket);
+
+      console.log("AFTER EMAIL");
     }
 
+    console.log("🔥 WEBHOOK HIT");
+    console.log("EVENT:", event.type);
     res.sendStatus(200);
   },
 );
@@ -193,8 +198,7 @@ async function sendEmail(ticket) {
   await transporter.sendMail({
     from: process.env.SMTP_USER,
 
-    to: ticket.email, // 👈 ВОТ ТУТ
-
+    to: ticket.email,
     subject: `💰 Paid support: ${ticket.title}`,
 
     html: `
