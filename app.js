@@ -261,19 +261,34 @@ app.post("/support/create", async (req, res) => {
 });
 
 app.get("/support/success", async (req, res) => {
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+  try {
+    console.log("SUCCESS QUERY:", req.query);
 
-  if (session.payment_status !== "paid") {
-    return res.status(400).send("Not paid");
+    const sessionId = req.query.session_id;
+
+    if (!sessionId) {
+      return res.status(400).send("Missing session_id");
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    console.log("SESSION:", session);
+
+    const ticket = tickets.get(req.query.ticket);
+
+    console.log("TICKET:", ticket);
+
+    if (ticket) {
+      await sendEmail(ticket);
+    }
+
+    res.send("Payment OK 🚀");
+  } catch (err) {
+    console.error("❌ SUCCESS ROUTE ERROR:");
+    console.error(err);
+
+    res.status(500).send(err.message);
   }
-
-  const ticket = tickets.get(req.query.ticket);
-
-  if (ticket) {
-    await sendEmail(ticket);
-  }
-
-  res.send("Payment successful");
 });
 
 app.get("/support", (req, res) => {
