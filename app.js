@@ -28,7 +28,7 @@ const supabase = createClient(
 // CONSTANTS
 // =====================
 
-const SUPABASE_BUCKET = "packages";
+const SUPABASE_BUCKET = "pkg";
 
 // Пока оставляем package.json.
 // Когда переедешь на manifest.json,
