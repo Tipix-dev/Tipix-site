@@ -160,7 +160,7 @@ async function listStoragePackages() {
   } = await supabase.storage
     .from(SUPABASE_BUCKET)
     .list("", {
-      limit: 1000,
+      limit: 100,
     });
 
   if (error) {
@@ -177,31 +177,46 @@ async function listStoragePackages() {
 // FIND EXISTING PACKAGE
 // =====================
 
-async function findExistingPackage(name) {
-  const files =
-    await listStoragePackages();
+async function listPackages() {
+  const files = await listStoragePackages();
 
-  const file = files.find(
-    (file) =>
-      file.name.startsWith(
-        `${name}@`,
-      ) &&
-      file.name.endsWith(".olsp"),
-  );
+  const packages = [];
 
-  if (!file) {
-    return null;
-  }
-
-  const match =
-    file.name.match(
-      /@(.+)\.olsp$/,
+  for (const file of files) {
+    const match = file.name.match(
+      /(.+)@(.+)\.olsp$/,
     );
 
-  return {
-    file: file.name,
-    version: match?.[1],
-  };
+    if (!match) {
+      continue;
+    }
+
+    try {
+      const meta =
+        await extractPackageMetaFromStorage(
+          file.name,
+        );
+
+      if (!meta) {
+        continue;
+      }
+
+      packages.push({
+        name: meta.name || match[1],
+        version: meta.version || match[2],
+        author: meta.author || "not author",
+        description:
+          meta.description || "not description",
+      });
+    } catch (error) {
+      console.error(
+        `Failed to read manifest from ${file.name}:`,
+        error,
+      );
+    }
+  }
+
+  return packages;
 }
 
 // =====================
@@ -272,7 +287,6 @@ function sha256(filePath) {
 async function listPackages() {
   const files =
     await listStoragePackages();
-
   return files
     .map((file) => {
       const match =
