@@ -10,6 +10,7 @@
   "license": "GPL-3.0-only",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
     "cloudflare": "^5.2.0",
     "dotenv": "^17.4.2",
     "ejs": "^3.1.10",
