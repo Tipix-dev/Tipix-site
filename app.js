@@ -281,32 +281,6 @@ function sha256(filePath) {
 }
 
 // =====================
-// LIST PACKAGES
-// =====================
-
-async function listPackages() {
-  const files =
-    await listStoragePackages();
-  return files
-    .map((file) => {
-      const match =
-        file.name.match(
-          /(.+)@(.+)\.olsp$/,
-        );
-
-      if (!match) {
-        return null;
-      }
-
-      return {
-        name: match[1],
-        version: match[2],
-      };
-    })
-    .filter(Boolean);
-}
-
-// =====================
 // STRIPE WEBHOOK
 // =====================
 
